@@ -44,6 +44,9 @@ Application screenshots are available in the repository (e.g., `flutter_01.png`,
 - Flask / Web Server (app.py)
 - Advanced LLM Integrations (AI Insights)
 
+**Database**
+- SQLAlchemy
+
 **Integrations**
 - Spotify API
 - YouTube API
