@@ -62,8 +62,6 @@ instance/
 *.pdf
 
 # Screenshots / images in root
-flutter_01.png
-flutter_02.png
 
 # Temporary analysis/debug/log text files
 *.txt
