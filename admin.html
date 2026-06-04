@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoodUplift Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--card:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.13);--violet:#8B5CF6;--pink:#EC4899;--blue:#93C5FD;--purple:#C4B5FD;--text:#F5F0FF;--sub:rgba(255,255,255,0.45);--danger:#F87171;--success:#6EE7B7}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+/* ── Login ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 30% 20%,rgba(139,92,246,.18) 0,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(236,72,153,.12) 0,transparent 60%)}
+.login-box{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:24px;padding:40px 36px;width:360px;backdrop-filter:blur(20px)}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-mark{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:18px}
+.login-box h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.login-box p{font-size:13px;color:var(--sub);margin-bottom:24px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--sub);margin-bottom:6px;text-transform:uppercase}
+.field input{width:100%;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:14px;outline:none;transition:.2s}
+.field input:focus{border-color:rgba(139,92,246,.5);background:rgba(255,255,255,.11)}
+.field{margin-bottom:16px}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.err-msg{color:var(--danger);font-size:12px;margin-top:8px;text-align:center}
+/* ── Shell ── */
+#app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:rgba(255,255,255,.04);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:100;backdrop-filter:blur(20px)}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px}
+.sidebar-logo .logo-mark{width:36px;height:36px;border-radius:10px;font-size:14px}
+.sidebar-logo span{font-size:13px;font-weight:700;letter-spacing:.05em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.55);border-radius:0;transition:.15s;border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.nav-item.active{color:var(--violet);background:rgba(139,92,246,.1);border-left-color:var(--violet)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.logout-btn{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);cursor:pointer}
+.logout-btn:hover{color:var(--danger)}
+.main{margin-left:220px;min-height:100vh;padding:28px 32px}
+.page{display:none}.page.active{display:block}
+/* ── Cards & Typography ── */
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--sub);margin-bottom:24px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;background:var(--glow,rgba(139,92,246,.15));filter:blur(20px)}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--sub);text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-size:32px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--sub);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px}
+.card h3{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text)}
+/* ── Tables ── */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-input{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;padding:8px 14px;color:var(--text);font-size:13px;outline:none;flex:1;min-width:180px}
+.search-input:focus{border-color:rgba(139,92,246,.4)}
+select.filter-sel{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;cursor:pointer}
+.btn-sm{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-primary{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-success{background:rgba(110,231,183,.15);color:var(--success);border:1px solid rgba(110,231,183,.3)}
+.btn-success:hover{background:rgba(110,231,183,.25)}
+.btn-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}
+.btn-danger:hover{background:rgba(248,113,113,.25)}
+.btn-edit{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.btn-edit:hover{background:rgba(139,92,246,.25)}
+.btn-view{background:rgba(147,197,253,.12);color:var(--blue);border:1px solid rgba(147,197,253,.28)}
+.btn-view:hover{background:rgba(147,197,253,.2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--sub);text-transform:uppercase;padding:0 12px 12px;cursor:pointer;user-select:none}
+thead th:hover{color:var(--text)}
+tbody tr{border-top:1px solid var(--border);transition:.15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+td{padding:11px 12px;vertical-align:middle}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-played{background:rgba(110,231,183,.15);color:var(--success)}
+.badge-skipped{background:rgba(248,113,113,.12);color:var(--danger)}
+.badge-improved{background:rgba(110,231,183,.15);color:var(--success)}
+.badge-same{background:rgba(147,197,253,.12);color:var(--blue)}
+.live-dot{display:inline-block;width:8px;height:8px;background:var(--success);border-radius:50%;box-shadow:0 0 6px var(--success);margin-left:6px;animation:pulse 2s infinite}
+@keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+/* ── Mood tag ── */
+.mood-tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.m-sad{background:rgba(147,197,253,.15);color:var(--blue)}
+.m-happy{background:rgba(110,231,183,.15);color:var(--success)}
+.m-neutral{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.m-energised{background:rgba(251,191,36,.12);color:#FCD34D}
+.m-stressed,.m-anxious{background:rgba(248,113,113,.12);color:var(--danger)}
+/* ── Activity feed ── */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.a-dot{width:8px;height:8px;border-radius:50%;background:var(--violet);margin-top:5px;flex-shrink:0}
+.a-text{font-size:13px;line-height:1.5}
+.a-time{font-size:11px;color:var(--sub);margin-top:2px}
+/* ── Toggle ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:13px;font-weight:500}
+.toggle-desc{font-size:11px;color:var(--sub);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:24px;cursor:pointer;transition:.3s}
+.slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+input:checked+.slider{background:linear-gradient(135deg,var(--violet),var(--pink))}
+input:checked+.slider:before{transform:translateX(20px)}
+/* ── Charts ── */
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bar-item{display:flex;align-items:center;gap:10px;font-size:12px}
+.bar-label{width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sub)}
+.bar-track{flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--violet),var(--pink));transition:.5s}
+.bar-val{width:30px;text-align:right;color:var(--sub)}
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#0D0D1A;border:1px solid var(--border);border-radius:20px;padding:28px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.modal p{font-size:13px;color:var(--sub);margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.modal .field input,.modal .field select{width:100%;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none}
+.modal .field input:focus{border-color:rgba(139,92,246,.4)}
+/* ── Error log ── */
+.error-line{font-size:11px;font-family:monospace;color:rgba(248,113,113,.8);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+/* ── Utilities ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}.sidebar{width:200px}.main{margin-left:200px}}
+@media(max-width:680px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+.section-divider{height:1px;background:var(--border);margin:20px 0}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;background:rgba(139,92,246,.15);color:var(--purple);margin:2px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--sub);font-size:13px}
+/* ── Custom Scrollbar ── */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.5); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-mark">🎵</div>
+      <div><div style="font-size:15px;font-weight:700">MoodUplift</div><div style="font-size:11px;color:var(--sub)">Admin Panel</div></div>
+    </div>
+    <h1>Admin Access</h1>
+    <p>Enter your admin secret key to continue</p>
+    <div class="field"><label>Admin Key</label><input type="password" id="admin-key-input" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn" onclick="doLogin()">Sign In</button>
+    <div class="err-msg" id="login-err"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">🎵</div>
+      <span>MoodUplift</span>
+    </div>
+    <div class="nav-item active" onclick="showPage('overview')" id="nav-overview"><span class="nav-icon">📊</span> Overview</div>
+    <div class="nav-item" onclick="showPage('users')" id="nav-users"><span class="nav-icon">👥</span> Users</div>
+    <div class="nav-item" onclick="showPage('songs')" id="nav-songs"><span class="nav-icon">🎵</span> Song Analytics</div>
+    <div class="nav-item" onclick="showPage('activity')" id="nav-activity"><span class="nav-icon">📋</span> Activity Logs</div>
+    <div class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="nav-icon">⚙️</span> Settings</div>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="doLogout()"><span>🚪</span> Logout</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <div class="page-title">Overview</div>
+      <div class="page-sub">Real-time snapshot of your app</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card" style="--glow:rgba(139,92,246,.2)"><div class="stat-label">Total Users</div><div class="stat-value" id="s-total-users">—</div></div>
+        <div class="stat-card" style="--glow:rgba(147,197,253,.15)"><div class="stat-label">Active Today</div><div class="stat-value" id="s-active-today">—</div></div>
+        <div class="stat-card" style="--glow:rgba(236,72,153,.15)"><div class="stat-label">Mood Entries</div><div class="stat-value" id="s-mood-entries">—</div></div>
+        <div class="stat-card" style="--glow:rgba(110,231,183,.12)"><div class="stat-label">AI Enhancements Today</div><div class="stat-value" id="s-ai-today">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Recent Activity</h3>
+          <div id="activity-feed"><div class="empty-state">Loading…</div></div>
+        </div>
+        <div class="card">
+          <h3>Quick Stats</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--sub)">New users this week</span><strong id="s-new-week">—</strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--sub)">Sessions today</span><strong id="s-sessions-today">—</strong></div>
+          </div>
+          <div class="section-divider"></div>
+          <h3 style="margin-bottom:12px">API Key Status</h3>
+          <div style="font-size:12px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--sub)">Gemini AI</span><span class="badge badge-played">Configured</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--sub)">Spotify</span><span class="badge badge-played">Configured</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--sub)">YouTube</span><span class="badge badge-played">Configured</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="page-title">User Management</div>
+      <div class="page-sub">Search, filter, create, edit and delete users</div>
+      <div class="card">
+        <div class="toolbar">
+          <input class="search-input" id="user-search" placeholder="Search by name or email…" oninput="filterUsers()">
+          <select class="filter-sel" id="user-sort" onchange="filterUsers()">
+            <option value="id">Sort: ID</option>
+            <option value="name">Sort: Name</option>
+            <option value="email">Sort: Email</option>
+          </select>
+          <select class="filter-sel" id="user-order" onchange="filterUsers()">
+            <option value="asc">Asc</option>
+            <option value="desc">Desc</option>
+          </select>
+          <button class="btn-sm btn-primary" onclick="openCreateUser()">+ Create User</button>
+          <button class="btn-sm btn-edit" onclick="loadUsers(true)">↻ Refresh</button>
+        </div>
+        <div id="users-table-wrap"><div class="empty-state">Loading users…</div></div>
+      </div>
+    </div>
+
+    <!-- USER DETAIL -->
+    <div class="page" id="page-user-detail">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+        <button class="btn-sm btn-edit" onclick="showPage('users')">← Back</button>
+        <div><div class="page-title" id="detail-name">User Detail</div><div class="page-sub" id="detail-email"></div></div>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="card"><h3>User Info</h3><div id="detail-info"></div></div>
+          <div class="card"><h3>Songs Played / Skipped</h3><div class="custom-scrollbar" id="detail-songs" style="max-height: 400px; overflow-y: auto; padding-right: 4px;"></div></div>
+          <div class="card"><h3 style="display:flex;justify-content:space-between">Liked Songs <span id="detail-liked-count" style="color:var(--sub)"></span></h3><div class="custom-scrollbar" id="detail-liked" style="max-height: 250px; overflow-y: auto; padding-right: 4px;"></div></div>
+        </div>
+        <div>
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+             <h3 style="margin-bottom:0">Total Minutes Played</h3>
+             <strong style="font-size:24px;color:var(--primary)" id="detail-minutes">0</strong>
+          </div>
+          <div class="card"><h3>Mood History</h3><div class="custom-scrollbar" id="detail-mood" style="max-height: 400px; overflow-y: auto; padding-right: 4px;"></div></div>
+          <div class="card"><h3 style="display:flex;justify-content:space-between">Blocked Songs <span id="detail-blocked-count" style="color:var(--sub)"></span></h3><div class="custom-scrollbar" id="detail-blocked" style="max-height: 250px; overflow-y: auto; padding-right: 4px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SONG ANALYTICS -->
+    <div class="page" id="page-songs">
+      <div class="page-title">Song Analytics</div>
+      <div class="page-sub">Most played, skip rates, and mood→song mapping</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Plays</div><div class="stat-value" id="sa-plays">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Skips</div><div class="stat-value" id="sa-skips">—</div></div>
+        <div class="stat-card"><div class="stat-label">Skip Rate</div><div class="stat-value" id="sa-skip-rate">—</div><div class="stat-sub">%</div></div>
+        <div class="stat-card"><div class="stat-label">Total Liked</div><div class="stat-value" id="sa-liked">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Blocked</div><div class="stat-value" id="sa-blocked">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card"><h3>🔥 Most Repeated Songs</h3><div class="bar-chart" id="chart-played"></div></div>
+        <div class="card"><h3>⏭ Most Skipped Songs</h3><div class="bar-chart" id="chart-skipped"></div></div>
+      </div>
+      <div class="card">
+        <h3>Liked &amp; Blocked Records</h3>
+        <div style="display:flex; gap: 20px">
+          <div style="flex:1" id="liked-list"></div>
+          <div style="flex:1" id="blocked-list"></div>
+        </div>
+      </div>
+      <div class="card"><h3>Mood → Top Song Mapping</h3><div id="mood-song-map"></div></div>
+    </div>
+
+    <!-- ACTIVITY LOGS -->
+    <div class="page" id="page-activity">
+      <div class="page-title">Activity &amp; Error Logs</div>
+      <div class="page-sub">Admin actions, user logins and system errors</div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Activity Log</h3>
+          <div class="toolbar">
+            <button class="btn-sm btn-primary" onclick="loadActivityLog()">↻ Refresh</button>
+            <button class="btn-sm btn-danger" onclick="clearActivityLog()">Clear Logs</button>
+          </div>
+          <div id="activity-log-list" class="custom-scrollbar" style="max-height:500px;overflow-y:auto;padding-right:4px;"><div class="empty-state">Loading…</div></div>
+        </div>
+        <div class="card">
+          <h3>Error Log</h3>
+          <div class="toolbar"><button class="btn-sm btn-primary" onclick="loadErrorLog()">↻ Refresh</button></div>
+          <div id="error-log-list" class="custom-scrollbar" style="max-height:500px;overflow-y:auto;padding-right:4px;"><div class="empty-state">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Feature toggles, branding, and integrations</div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Feature Toggles</h3>
+          <div id="toggles-list"><div class="empty-state">Loading…</div></div>
+          <button class="btn-sm btn-primary" style="margin-top:16px;width:100%" onclick="saveToggles()" id="btn-save-toggles">Save Toggles</button>
+        </div>
+        <div class="card">
+          <h3>Branding</h3>
+          <p style="font-size:12px;color:var(--sub);margin-bottom:16px">The App Name syncs dynamically to the mobile app.</p>
+          <div id="branding-form"><div class="empty-state">Loading…</div></div>
+          <button class="btn-sm btn-primary" style="margin-top:16px;width:100%" onclick="saveBranding()" id="btn-save-branding">Save Branding</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CREATE/EDIT USER MODAL -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <h2 id="modal-title">Create User</h2>
+    <p id="modal-sub">Fill in the details below</p>
+    <input type="hidden" id="modal-user-id">
+    <div class="field"><label>Name</label><input type="text" id="m-name" placeholder="John Doe"></div>
+    <div class="field"><label>Email</label><input type="email" id="m-email" placeholder="user@example.com"></div>
+    <div class="field"><label>Password <span style="color:var(--sub);font-size:10px">(leave blank to keep existing)</span></label>
+      <div style="position:relative">
+        <input type="password" id="m-password" placeholder="••••••••" style="width:100%;padding-right:40px">
+        <button onclick="toggleModalPwd()" style="position:absolute;right:10px;top:10px;background:none;border:none;color:var(--sub);cursor:pointer;font-size:14px" title="Show/Hide Password">👁️</button>
+      </div>
+    </div>
+    <div class="field"><label>Age</label><input type="text" id="m-age" placeholder="25"></div>
+    <div class="field"><label>Gender</label>
+      <select id="m-gender" style="width:100%;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none">
+        <option value="">— Select —</option>
+        <option>Male</option><option>Female</option><option>Non-binary</option><option>Prefer not to say</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" style="background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border)" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="submitUser()">Save</button>
+    </div>
+    <div class="err-msg" id="modal-err"></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal">
+    <h2>Delete User?</h2>
+    <p id="del-modal-sub">This will permanently delete the user and all their data. This cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn-sm" style="background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border)" onclick="document.getElementById('del-modal').classList.remove('open')">Cancel</button>
+      <button class="btn-sm btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:12px 20px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.3s;pointer-events:none">Saved successfully</div>
+
+<script>
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--danger)' : 'var(--success)';
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 3000);
+}
+
+function toggleModalPwd() {
+  const p = document.getElementById('m-password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+}
+
+const BASE = window.location.origin;
+let _adminKey = '';
+let _allUsers = [];
+let _liveUserIds = [];
+let _deleteUserId = null;
+let _toggleState = {};
+let _brandingState = {};
+let _activePage = 'overview';
+let _currentUserId = null;
+let _poller = null;
+
+// The mood progression ladder
+const _ladderMap = {
+  'sad': 0, 'stressed': 1, 'anxious': 2, 'neutral': 3, 'happy': 4, 'energised': 5
+};
+const _ladderIndex = ['Sad', 'Stressed', 'Anxious', 'Neutral', 'Happy', 'Energised'];
+
+// ── Auth ──
+async function doLogin() {
+  const key = document.getElementById('admin-key-input').value.trim();
+  if (!key) return;
+  const r = await fetch(`${BASE}/admin/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key})});
+  if (r.ok) {
+    _adminKey = key;
+    sessionStorage.setItem('adminKey', key);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    document.getElementById('login-err').textContent = 'Invalid admin key.';
+  }
+}
+
+function doLogout() {
+  if (_poller) clearInterval(_poller);
+  sessionStorage.removeItem('adminKey'); _adminKey = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-key-input').value = '';
+}
+
+async function api(path, body={}) {
+  const r = await fetch(`${BASE}${path}`, {method:'POST', headers:{'Content-Type':'application/json','X-Admin-Key':_adminKey}, body: JSON.stringify(body)});
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ── Navigation ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+  
+  _activePage = name;
+
+  // Initial load
+  pollTick();
+}
+
+// ── Polling logic ──
+function pollTick() {
+  if (_activePage === 'overview') loadStats();
+  if (_activePage === 'users') loadUsers();
+  if (_activePage === 'songs') loadSongAnalytics();
+  if (_activePage === 'activity') { loadActivityLog(); loadErrorLog(); }
+  if (_activePage === 'settings') { loadToggles(); loadBranding(); }
+  if (_activePage === 'user-detail' && _currentUserId) { viewUser(_currentUserId, true); }
+}
+
+async function initApp() {
+  showPage('overview');
+  if (_poller) clearInterval(_poller);
+  _poller = setInterval(pollTick, 5000); // 5 seconds live polling!
+}
+
+// ── Overview ──
+async function loadStats() {
+  try {
+    const d = await api('/admin/stats');
+    document.getElementById('s-total-users').textContent = d.total_users;
+    document.getElementById('s-active-today').textContent = d.active_sessions_today;
+    document.getElementById('s-mood-entries').textContent = d.total_mood_entries;
+    document.getElementById('s-ai-today').textContent = d.ai_requests_today;
+    document.getElementById('s-new-week').textContent = d.new_users_this_week;
+    document.getElementById('s-sessions-today').textContent = d.active_sessions_today;
+    const feed = document.getElementById('activity-feed');
+    if (d.recent_activity && d.recent_activity.length) {
+      feed.innerHTML = d.recent_activity.map(a => `
+        <div class="activity-item">
+          <div class="a-dot"></div>
+          <div><div class="a-text"><strong>${escHtml(a.action)}</strong> — ${escHtml(a.detail||'')}</div>
+          <div class="a-time">${fmtTime(a.timestamp)}</div></div>
+        </div>`).join('');
+    } else { feed.innerHTML = '<div class="empty-state">No activity yet</div>'; }
+  } catch(e) { console.error(e); }
+}
+
+// ── Users ──
+async function loadUsers(forceUI = false) {
+  if (forceUI) document.getElementById('users-table-wrap').innerHTML = '<div class="empty-state">Loading…</div>';
+  try {
+    const dLive = await api('/admin/live-users');
+    _liveUserIds = dLive.live_user_ids || [];
+
+    const search = document.getElementById('user-search')?.value || '';
+    const sort_by = document.getElementById('user-sort')?.value || 'id';
+    const order = document.getElementById('user-order')?.value || 'asc';
+    const d = await api('/admin/users', {search, sort_by, order});
+    _allUsers = d.users;
+    renderUsersTable(_allUsers);
+  } catch(e) { if(forceUI) document.getElementById('users-table-wrap').innerHTML = '<div class="empty-state">Failed to load users.</div>'; }
+}
+
+function filterUsers() { loadUsers(false); }
+
+function renderUsersTable(users) {
+  if (!users.length) { document.getElementById('users-table-wrap').innerHTML = '<div class="empty-state">No users found.</div>'; return; }
+  const rows = users.map(u => {
+    const isLive = _liveUserIds.includes(u.id);
+    return `
+    <tr>
+      <td>${u.id}</td>
+      <td><strong>${escHtml(u.name)}</strong> ${isLive ? '<span class="live-dot" title="Active in last 5m"></span>' : ''}</td>
+      <td style="color:var(--sub)">${escHtml(u.email)}</td>
+      <td>${u.age||'—'}</td>
+      <td>${u.session_count}</td>
+      <td style="color:var(--sub);font-size:11px">${u.last_active ? fmtTime(u.last_active) : 'Never'}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm btn-view" onclick="viewUser(${u.id})">View</button>
+          <button class="btn-sm btn-edit" onclick="openEditUser(${u.id})">Edit</button>
+          <button class="btn-sm btn-danger" onclick="askDelete(${u.id},'${escHtml(u.email)}')">Del</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('users-table-wrap').innerHTML = `
+    <table>
+      <thead><tr>
+        <th onclick="sortUsers('id')">ID</th>
+        <th onclick="sortUsers('name')">Name</th>
+        <th onclick="sortUsers('email')">Email</th>
+        <th>Age</th>
+        <th>Sessions</th><th style="min-width:120px">Last Active</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function sortUsers(col) {
+  const sel = document.getElementById('user-sort');
+  const ord = document.getElementById('user-order');
+  if (sel.value === col) ord.value = ord.value === 'asc' ? 'desc' : 'asc';
+  else { sel.value = col; ord.value = 'asc'; }
+  document.getElementById('user-search').focus(); // Keep focus
+  loadUsers(true);
+}
+
+async function viewUser(uid, isPolling = false) {
+  _currentUserId = uid;
+  if (!isPolling) {
+    showPage('user-detail');
+    document.getElementById('nav-users').classList.add('active');
+    document.getElementById('detail-name').textContent = 'Loading…';
+    document.getElementById('detail-email').textContent = '';
+    ['detail-info','detail-mood','detail-songs'].forEach(id => document.getElementById(id).innerHTML = '<div class="empty-state">Loading…</div>');
+  }
+
+  // Preserve scroll state for seamless polling
+  const scrolls = {};
+  if (isPolling) {
+    ['detail-mood','detail-songs','detail-liked','detail-blocked'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) scrolls[id] = el.scrollTop;
+    });
+  }
+
+  try {
+    const dLive = await api('/admin/live-users');
+    _liveUserIds = dLive.live_user_ids || [];
+    const isLive = _liveUserIds.includes(uid);
+
+    const d = await api('/admin/user/detail', {id: uid});
+    const u = d.user;
+    
+    document.getElementById('detail-name').innerHTML = `${u.name} ${isLive ? '<span class="live-dot" title="Active now"></span>' : ''}`;
+    document.getElementById('detail-email').textContent = u.email;
+    document.getElementById('detail-info').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+        <div><span style="color:var(--sub);display:inline-block;width:100px">ID:</span> ${u.id}</div>
+        <div><span style="color:var(--sub);display:inline-block;width:100px">Email:</span> ${escHtml(u.email)}</div>
+        <div><span style="color:var(--sub);display:inline-block;width:100px">Age:</span> ${u.age||'—'}</div>
+        <div><span style="color:var(--sub);display:inline-block;width:100px">Gender:</span> ${u.gender||'—'}</div>
+      </div>`;
+
+    document.getElementById('detail-minutes').textContent = u.total_minutes_played || 0;
+    
+    document.getElementById('detail-liked-count').textContent = u.liked_songs && u.liked_songs.length ? u.liked_songs.length : '';
+    const likedSongsHTML = u.liked_songs && u.liked_songs.length 
+      ? u.liked_songs.map(s => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;"><span>${escHtml(s.title)}</span> <span style="color:var(--sub)">${escHtml(s.artist)}</span></div>`).join('')
+      : '<div class="empty-state">None</div>';
+    document.getElementById('detail-liked').innerHTML = likedSongsHTML;
+
+    document.getElementById('detail-blocked-count').textContent = u.blocked_songs && u.blocked_songs.length ? u.blocked_songs.length : '';
+    const blockedSongsHTML = u.blocked_songs && u.blocked_songs.length 
+      ? u.blocked_songs.map(s => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;"><span>${escHtml(s.title)}</span> <span style="color:var(--sub)">${escHtml(s.artist)}</span></div>`).join('')
+      : '<div class="empty-state">None</div>';
+    document.getElementById('detail-blocked').innerHTML = blockedSongsHTML;
+      
+    // Sort songs chronologically for mood timeline extraction
+    const chronologicalSongs = d.songs ? [...d.songs].reverse() : [];
+
+    // Mood history strictly shows start to end transitions and dynamically inferred intermediates from actual song plays
+    if (d.mood_history.length) {
+      document.getElementById('detail-mood').innerHTML = d.mood_history.slice(0,30).map(m => {
+        const startMod = (m.start_mood||'').toLowerCase();
+        const endMod = (m.end_mood||'').toLowerCase();
+        
+        let achievedMoods = [startMod];
+
+        if (m.date && chronologicalSongs.length > 0) {
+           const startTime = new Date(m.date).getTime();
+           const endTime = startTime + ((m.duration_secs || 0) * 1000) + 60000; // 1 min buffer
+           
+           chronologicalSongs.forEach(s => {
+              if (!s.logged_at) return;
+              const sTime = new Date(s.logged_at + 'Z').getTime(); // Force UTC for backend generated times
+              
+              if (sTime >= startTime - 60000 && sTime <= endTime) {
+                 const sMood = (s.mood || '').toLowerCase();
+                 // Do not record 'unknown' or duplicate contiguous moods
+                 if (sMood && sMood !== 'unknown' && sMood !== achievedMoods[achievedMoods.length - 1]) {
+                     achievedMoods.push(sMood);
+                 }
+              }
+           });
+        }
+        
+        if (endMod && endMod !== achievedMoods[achievedMoods.length - 1]) {
+           achievedMoods.push(endMod);
+        }
+
+        const formatMood = (str) => {
+            if (!str) return '?';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        };
+
+        const transHTML = achievedMoods.map(md => `<span class="mood-tag m-${md}">${formatMood(md)}</span>`).join(` <span style="color:var(--sub);font-size:10px">→</span> `);
+
+        return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div>
+            <div style="margin-bottom:6px">${transHTML}</div>
+            <div style="color:var(--sub)">Songs: ${m.songs_played} played, ${m.songs_skipped} skipped</div>
+          </div>
+          <div style="text-align:right;color:var(--sub)">
+            <div>${m.mood_improved ? '<strong style="color:var(--success)">Improved</strong>' : (m.mood_improved===false?'<strong style="color:var(--danger)">Downshift</strong>':'Same')}</div>
+            <div style="margin-top:4px">${fmtLocalTime(m.date)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } else { document.getElementById('detail-mood').innerHTML = '<div class="empty-state">No mood history</div>'; }
+    
+    // Songs
+    if (d.songs && d.songs.length) {
+      document.getElementById('detail-songs').innerHTML = d.songs.slice(0,30).map(s => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div><div style="font-weight:600">${escHtml(s.title||'Unknown')}</div><div style="color:var(--sub)">${escHtml(s.artist||'Unknown')}</div></div>
+          <div style="text-align:right">
+            <span class="badge ${s.action==='played'?'badge-played':'badge-skipped'}">${s.action}</span>
+            <div style="color:var(--sub);margin-top:4px">${s.mood||'Unknown'}</div>
+          </div>
+        </div>`).join('');
+    } else { document.getElementById('detail-songs').innerHTML = '<div class="empty-state">No song data</div>'; }
+
+    // Restore scroll state smoothly
+    if (isPolling) {
+      ['detail-mood','detail-songs','detail-liked','detail-blocked'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && scrolls[id] !== undefined) el.scrollTop = scrolls[id];
+      });
+    }
+  } catch(e) {
+    if (!isPolling) document.getElementById('detail-info').innerHTML = '<div class="empty-state">Failed to load: ' + e + '</div>';
+  }
+}
+
+// ── Create/Edit User ──
+function openCreateUser() {
+  document.getElementById('modal-title').textContent = 'Create User';
+  document.getElementById('modal-sub').textContent = 'Fill in user details';
+  document.getElementById('modal-user-id').value = '';
+  ['m-name','m-email','m-password','m-age'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-gender').value = '';
+  document.getElementById('modal-err').textContent = '';
+  document.getElementById('user-modal').classList.add('open');
+}
+
+function openEditUser(uid) {
+  const u = _allUsers.find(x => x.id === uid);
+  if (!u) return;
+  document.getElementById('modal-title').textContent = 'Edit User';
+  document.getElementById('modal-sub').textContent = `Editing: ${u.email}`;
+  document.getElementById('modal-user-id').value = uid;
+  document.getElementById('m-name').value = u.name || '';
+  document.getElementById('m-email').value = u.email || '';
+  document.getElementById('m-password').value = '';
+  document.getElementById('m-age').value = u.age || '';
+  document.getElementById('m-gender').value = u.gender || '';
+  document.getElementById('modal-err').textContent = '';
+  document.getElementById('user-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('user-modal').classList.remove('open'); }
+
+async function submitUser() {
+  const uid = document.getElementById('modal-user-id').value;
+  const body = {
+    name: document.getElementById('m-name').value.trim(),
+    email: document.getElementById('m-email').value.trim(),
+    password: document.getElementById('m-password').value,
+    age: document.getElementById('m-age').value.trim(),
+    gender: document.getElementById('m-gender').value
+  };
+  if (!uid && (!body.name || !body.email || !body.password)) {
+    document.getElementById('modal-err').textContent = 'Name, email and password are required.'; return;
+  }
+  try {
+    if (uid) { body.id = parseInt(uid); await api('/admin/users/update', body); }
+    else { await api('/admin/users/create', body); }
+    closeModal(); loadUsers(true); showToast('User saved successfully');
+  } catch(e) { document.getElementById('modal-err').textContent = 'Error: ' + e.message; }
+}
+
+function askDelete(uid, email) {
+  _deleteUserId = uid;
+  document.getElementById('del-modal-sub').textContent = `Delete user "${email}" and all their data? This cannot be undone.`;
+  document.getElementById('del-modal').classList.add('open');
+}
+
+async function confirmDelete() {
+  document.getElementById('del-modal').classList.remove('open');
+  try {
+    await api('/admin/users/delete', { id: _deleteUserId });
+    _deleteUserId = null;
+    loadUsers(true);
+    showPage('users');
+    showToast('User deleted successfully');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── Song Analytics ──
+async function loadSongAnalytics() {
+  try {
+    const d = await api('/admin/song-analytics');
+    document.getElementById('sa-plays').textContent = d.total_plays;
+    document.getElementById('sa-skips').textContent = d.total_skips;
+    document.getElementById('sa-skip-rate').textContent = d.skip_rate_pct;
+    document.getElementById('sa-liked').textContent = d.total_liked;
+    document.getElementById('sa-blocked').textContent = d.total_blocked;
+    // Charts
+    const maxP = d.most_played[0]?.count || 1;
+    document.getElementById('chart-played').innerHTML = d.most_played.slice(0,10).map(s => `
+      <div class="bar-item">
+        <div class="bar-label" title="${escHtml(s.title)} – ${escHtml(s.artist)}">${escHtml(s.title)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(s.count/maxP*100).toFixed(1)}%"></div></div>
+        <div class="bar-val">${s.count}</div>
+      </div>`).join('') || '<div class="empty-state">No data</div>';
+    const maxS = d.most_skipped[0]?.count || 1;
+    document.getElementById('chart-skipped').innerHTML = d.most_skipped.slice(0,10).map(s => `
+      <div class="bar-item">
+        <div class="bar-label" title="${escHtml(s.title)} – ${escHtml(s.artist)}">${escHtml(s.title)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(s.count/maxS*100).toFixed(1)}%;background:linear-gradient(90deg,#F87171,#EC4899)"></div></div>
+        <div class="bar-val">${s.count}</div>
+      </div>`).join('') || '<div class="empty-state">No data</div>';
+    // Mood song map
+    const moods = Object.entries(d.mood_song_map);
+    document.getElementById('mood-song-map').innerHTML = moods.length ? `
+      <table>
+        <thead><tr><th>Mood</th><th>Top Song</th><th>Artist</th><th>Plays</th></tr></thead>
+        <tbody>${moods.map(([mood,s]) => `
+          <tr>
+            <td><span class="mood-tag m-${mood.toLowerCase()}">${mood}</span></td>
+            <td><strong>${escHtml(s.title)}</strong></td>
+            <td style="color:var(--sub)">${escHtml(s.artist)}</td>
+            <td>${s.count}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>` : '<div class="empty-state">No mood-song data yet</div>';
+
+    // Refresh liked/blocked
+    document.getElementById('liked-list').innerHTML = `<h4 style="font-size:12px;margin-bottom:8px;color:var(--success)">👍 Liked Unique Songs (${d.all_liked.length})</h4>` +
+      '<div class="custom-scrollbar" style="max-height:300px;overflow-y:auto;padding-right:6px;">' +
+      (d.all_liked.length ? d.all_liked.map(p => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;"><span>${escHtml(p.title)} - <span style="color:var(--sub)">${escHtml(p.artist)}</span></span> <span>${p.count}</span></div>`).join('') : '<div class="empty-state" style="padding:10px">None</div>') +
+      '</div>';
+      
+    document.getElementById('blocked-list').innerHTML = `<h4 style="font-size:12px;margin-bottom:8px;color:var(--danger)">🚫 Blocked Unique Songs (${d.all_blocked.length})</h4>` +
+      '<div class="custom-scrollbar" style="max-height:300px;overflow-y:auto;padding-right:6px;">' +
+      (d.all_blocked.length ? d.all_blocked.map(p => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;"><span>${escHtml(p.title)} - <span style="color:var(--sub)">${escHtml(p.artist)}</span></span> <span>${p.count}</span></div>`).join('') : '<div class="empty-state" style="padding:10px">None</div>') +
+      '</div>';
+
+  } catch(e) { console.error(e); }
+}
+
+// ── Activity Log ──
+async function loadActivityLog() {
+  try {
+    const d = await api('/admin/activity-log', {limit: 100});
+    if (!d.logs.length) { document.getElementById('activity-log-list').innerHTML = '<div class="empty-state">No activity</div>'; return; }
+    document.getElementById('activity-log-list').innerHTML = d.logs.map(l => `
+      <div class="activity-item">
+        <div class="a-dot" style="${l.action==='user_login' ? 'background:var(--success)' : ''}"></div>
+        <div>
+          <div class="a-text"><strong>${escHtml(l.action)}</strong> — ${escHtml(l.detail||'')} <span style="color:var(--sub);font-size:11px">(${l.ip||'?'})</span></div>
+          <div class="a-time">${fmtTime(l.timestamp)}</div>
+        </div>
+      </div>`).join('');
+  } catch(e) { document.getElementById('activity-log-list').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+async function clearActivityLog() {
+  if (!confirm("Are you sure you want to clear all activity logs?")) return;
+  try {
+    await api('/admin/logs/clear');
+    loadActivityLog();
+  } catch(e) { alert("Failed to clear logs: " + e.message); }
+}
+
+async function loadErrorLog() {
+  try {
+    const d = await api('/admin/error-log');
+    if (!d.errors.filter(Boolean).length) { document.getElementById('error-log-list').innerHTML = '<div class="empty-state">No errors logged</div>'; return; }
+    document.getElementById('error-log-list').innerHTML = d.errors.filter(Boolean).map(l => `<div class="error-line">${escHtml(l)}</div>`).join('');
+  } catch(e) { document.getElementById('error-log-list').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+// ── Feature Toggles ──
+const toggleDescs = {
+  ai_insights_enabled: 'Show AI-generated insights in the history tab',
+  song_blocking_enabled: 'Allow users to block songs',
+  feedback_sheet_enabled: 'Show mid-session feedback sheet to users',
+  voice_input_enabled: 'Allow users to dictate mood via microphone',
+  multilingual_enabled: 'Serve UI in multiple languages',
+  skip_song_enabled: 'Allow skipping tracks in player'
+};
+
+async function loadToggles() {
+  try {
+    _toggleState = await api('/admin/feature-toggles');
+    document.getElementById('toggles-list').innerHTML = Object.entries(_toggleState).map(([k,v]) => `
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</div>
+          <div class="toggle-desc">${toggleDescs[k]||''}</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="tog-${k}" ${v?'checked':''} onchange="_toggleState['${k}']=this.checked"><span class="slider"></span></label>
+      </div>`).join('');
+  } catch(e) { document.getElementById('toggles-list').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+async function saveToggles() {
+  const btn = document.getElementById('btn-save-toggles');
+  const org = btn.textContent;
+  btn.textContent = 'Saving...';
+  try {
+    await api('/admin/feature-toggles', {action:'set', toggles: _toggleState});
+    btn.textContent = 'Saved!';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.textContent = org; btn.classList.remove('btn-success'); }, 2000);
+  } catch(e) { alert('Failed: ' + e.message); btn.textContent = org; }
+}
+
+// ── Branding ──
+async function loadBranding() {
+  try {
+    _brandingState = await api('/admin/branding');
+    if (!document.getElementById('br-name')) {
+      document.getElementById('branding-form').innerHTML = `
+        <div class="field" style="margin-bottom:0"><label>App Name</label><input type="text" id="br-name" value="${escHtml(_brandingState.app_name||'')}"></div>
+      `;
+    }
+  } catch(e) { document.getElementById('branding-form').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+async function saveBranding() {
+  const btn = document.getElementById('btn-save-branding');
+  const org = btn.textContent;
+  btn.textContent = 'Saving...';
+  const branding = {
+    app_name: document.getElementById('br-name').value
+  };
+  try {
+    await api('/admin/branding', {action:'set', branding});
+    btn.textContent = 'Saved!';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.textContent = org; btn.classList.remove('btn-success'); }, 2000);
+  } catch(e) { alert('Failed: ' + e.message); btn.textContent = org; }
+}
+
+// ── Helpers ──
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtTime(isoStr) {
+  if (!isoStr) return '—';
+  try { 
+    // Adding Z ensures it parses as UTC, converting correctly to local timezone
+    const dt = new Date(isoStr.endsWith('Z') ? isoStr : isoStr + 'Z'); 
+    return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); 
+  } catch { return isoStr; }
+}
+
+function fmtLocalTime(isoStr) {
+  if (!isoStr) return '—';
+  try {
+    const [datePart, timePart] = isoStr.replace('Z', '').split('T');
+    if (!timePart) return isoStr;
+    const [h, m] = timePart.split(':');
+    return `${datePart} ${h}:${m}`;
+  } catch { return isoStr; }
+}
+
+// ── Auto-login from session ──
+window.onload = () => {
+  const saved = sessionStorage.getItem('adminKey');
+  if (saved) {
+    _adminKey = saved;
+    fetch(`${BASE}/admin/verify`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key: saved})})
+      .then(r => { if (r.ok) { document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='block'; initApp(); } })
+      .catch(() => {});
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "feature_toggles": {
+    "ai_insights_enabled": true,
+    "song_blocking_enabled": true,
+    "feedback_sheet_enabled": true,
+    "voice_input_enabled": true,
+    "multilingual_enabled": true,
+    "skip_song_enabled": true
+  },
+  "branding": {
+    "app_name": "uplifter",
+    "tagline": "music is a mantra"
+  }
+}
