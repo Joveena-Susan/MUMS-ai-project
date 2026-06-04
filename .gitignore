@@ -49,13 +49,43 @@ app.*.map.json
 
 # Python
 __pycache__/
-*.pyc
 instance/
-
-# Temporary analysis/debug files
-*.txt
-.analyzer.txt
-.flutter-plugins-dependencies
 
 # Gemini
 .gemini/
+
+# ============================================
+# Non-essential files (not needed for the app)
+# ============================================
+
+# PDFs and documentation artifacts
+*.pdf
+
+# Screenshots / images in root
+flutter_01.png
+flutter_02.png
+
+# Temporary analysis/debug/log text files
+*.txt
+
+# Admin panel (not part of mobile app)
+admin.html
+admin_config.json
+admin_page_summary.md
+
+# Summary/documentation markdown in root
+summary_app_py.md
+
+# Test/utility/debug Python scripts
+test_*.py
+verify_*.py
+discover_models.py
+list_models.py
+list_all_models.py
+clean_mini.py
+replace_mini.py
+re_opacity.py
+recover_history.py
+
+# Moodify sub-project (separate React Native/Expo app)
+moodify/
