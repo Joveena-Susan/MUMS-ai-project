@@ -5,7 +5,7 @@ MUMS.ai is a full-stack mobile application that acts as a personalized music the
 The app combines artificial intelligence, emotion detection, music streaming integrations, and interactive feedback to create a holistic platform designed to enhance mental health and daily emotional balance.
 
 ## 📱 Screenshots
-Application screenshots are available in the repository (e.g., `flutter_01.png`, `flutter_02.png`).
+Application screenshots are available in the repository in the 'Screenshots' Folder.
 
 ## ✨ Features
 
