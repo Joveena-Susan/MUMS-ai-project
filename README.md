@@ -99,8 +99,13 @@ flutter run
 - Social/community features for shared emotional support
 - Extended daily journaling and mood calendar
 
+## Project Information
+
+CSE 3rd Year Mini Project
+
 ## 👨‍💻 Author
 **Jeffery Maju**
 - 🌐 GitHub: [https://github.com/JefferyMaju](https://github.com/JefferyMaju)
 
 ⭐ If you found this project interesting, consider giving it a star!
+
